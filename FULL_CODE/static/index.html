@@ -1,0 +1,2380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="application-name" content="Voice-of-Store Engine">
+    <title>Voice of Store Engine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JavaScript Client (Official v2 CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Chart.js (Official v4 CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saffron: {
+                            50: '#FFFBEB',
+                            100: '#FEF3C7',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                            700: '#B45309'
+                        },
+                        navy: {
+                            800: '#1E293B',
+                            900: '#0F172A'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-navy-900 text-white border-b border-slate-800 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Title & Tagline -->
+                <div class="flex items-center space-x-3">
+                    <div>
+                        <span class="font-extrabold text-xl tracking-tight text-white">Voice of Store Engine</span>
+                        <p class="text-xs text-slate-400">AI-Powered Retail Feedback Intelligence</p>
+                    </div>
+                </div>
+
+                <!-- Public Navigation Links (Desktop) -->
+                <nav id="publicNavLinks" class="hidden lg:flex items-center space-x-6 text-sm font-medium">
+                    <a href="#hero" onclick="navigateToSection(event, 'hero')" class="text-slate-300 hover:text-amber-400 transition">Home</a>
+                    <a href="#features" onclick="navigateToSection(event, 'features')" class="text-slate-300 hover:text-amber-400 transition">Features</a>
+                    <a href="#how-it-works" onclick="navigateToSection(event, 'how-it-works')" class="text-slate-300 hover:text-amber-400 transition">How It Works</a>
+                    <a href="#portals" onclick="navigateToSection(event, 'portals')" class="text-slate-300 hover:text-amber-400 transition">Choose Workspace</a>
+                </nav>
+
+                <!-- Authentication State & Mobile Toggle -->
+                <div class="flex items-center space-x-3">
+                    <!-- Supabase Auth Control Button / User Badge -->
+                    <div id="authContainer" class="flex items-center space-x-2 text-xs">
+                        <button onclick="openAuthModal()" id="btnSignInModal" class="px-3 py-1 rounded-lg bg-saffron-500 hover:bg-saffron-600 text-navy-900 font-bold transition shadow-sm">
+                            Sign In
+                        </button>
+                        <div id="userProfileBadge" class="hidden flex items-center space-x-2 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
+                            <span id="userRoleIndicator" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-400/20 text-amber-300">Role</span>
+                            <span id="userEmailDisplay" class="text-slate-300 font-medium truncate max-w-[140px]">user@example</span>
+                            <button onclick="goToUserWorkspace()" id="btnGoToWorkspace" class="px-2 py-0.5 rounded bg-saffron-500/20 text-saffron-300 hover:bg-saffron-500/30 text-[11px] font-semibold transition" title="Go to your Workspace">Workspace</button>
+                            <button onclick="handleSignOut()" class="text-slate-400 hover:text-white underline ml-1 text-[11px]" title="Sign Out">Logout</button>
+                        </div>
+                    </div>
+                    <!-- Mobile Menu Hamburger Button -->
+                    <button type="button" onclick="toggleMobileMenu()" id="btnMobileNavToggle" class="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition" aria-label="Toggle navigation menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobileNavDrawer" class="hidden lg:hidden bg-navy-950 border-t border-slate-800 px-4 pt-3 pb-4 space-y-2 text-sm font-medium">
+            <a href="#hero" onclick="navigateToSection(event, 'hero')" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">Home</a>
+            <a href="#features" onclick="navigateToSection(event, 'features')" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">Features</a>
+            <a href="#how-it-works" onclick="navigateToSection(event, 'how-it-works')" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">How It Works</a>
+            <a href="#portals" onclick="navigateToSection(event, 'portals')" class="block py-2 px-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">Choose Workspace</a>
+        </div>
+    </header>
+
+    <!-- Authenticated Workspace Navigation Bar (Role-Aware; Hidden on Public Landing Page) -->
+    <div id="workspaceNavBar" class="bg-white border-b border-slate-200 sticky top-24 z-40 shadow-sm hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav id="workspaceNavItems" class="flex space-x-4 overflow-x-auto py-3 text-xs sm:text-sm font-medium">
+                <!-- Dynamically populated based on authenticated user role -->
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ============================================================= -->
+        <!-- PUBLIC WELCOME & LANDING PAGE -->
+        <!-- ============================================================= -->
+        <section id="view-home" class="space-y-20 pb-12">
+            <!-- Hero Section -->
+            <div id="hero" class="relative rounded-3xl bg-gradient-to-br from-navy-900 via-slate-900 to-navy-800 text-white p-8 sm:p-12 lg:p-16 shadow-xl border border-slate-800 overflow-hidden">
+                <!-- Background ambient decorative glows -->
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                    <!-- Left Hero Content -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-xs font-semibold">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                            <span>Enterprise Retail Intelligence Platform</span>
+                        </div>
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
+                            Turn Customer Feedback Into <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-200">Better Store Experiences</span>
+                        </h1>
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl">
+                            Bring customer reviews, complaints, and store feedback together to identify recurring issues, understand customer sentiment, and help teams take action.
+                        </p>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap items-center gap-4 pt-2">
+                            <button onclick="handleExploreDashboard()" class="px-6 py-3.5 rounded-xl bg-saffron-500 hover:bg-saffron-600 text-navy-900 font-bold text-sm shadow-lg hover:shadow-saffron-500/20 transition-all flex items-center space-x-2 group">
+                                <span>Explore Dashboard</span>
+                                <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                            <button onclick="handleSubmitFeedbackHero()" class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm border border-slate-700 shadow-md transition-all flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                <span>Submit Feedback</span>
+                            </button>
+                        </div>
+
+                        <!-- Highlights Pill Row -->
+                        <div class="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-6 text-xs text-slate-400">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-emerald-400 font-bold text-sm">✓</span>
+                                <span>60 Connected Retail Stores</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-emerald-400 font-bold text-sm">✓</span>
+                                <span>Real-Time AI Issue Triage</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-emerald-400 font-bold text-sm">✓</span>
+                                <span>Tamper-Evident Incident Auditing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Hero Architectural Visual -->
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="w-full max-w-md bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700/80 p-5 shadow-2xl space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                    <span class="ml-2 text-xs font-mono font-bold text-slate-400">INTELLIGENCE FLOW</span>
+                                </div>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Live Stream</span>
+                            </div>
+
+                            <!-- Architectural Flow Graphic (Inline SVG / CSS) -->
+                            <div class="space-y-3 text-xs">
+                                <!-- Step 1: Multi-Channel Ingestion -->
+                                <div class="p-3 bg-navy-900/90 rounded-xl border border-slate-700 flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
+                                            📥
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-white text-xs">Multi-Channel Ingestion</div>
+                                            <div class="text-[11px] text-slate-400">Reviews • Mobile App • In-Store Staff</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300">39,769 items</span>
+                                </div>
+
+                                <!-- Flow Arrow -->
+                                <div class="flex justify-center -my-1 text-slate-500">
+                                    <svg class="w-4 h-4 text-amber-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                </div>
+
+                                <!-- Step 2: Calibrated LinearSVC Classification -->
+                                <div class="p-3 bg-navy-900/90 rounded-xl border border-amber-500/40 shadow-inner flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
+                                            ⚡
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-white text-xs flex items-center space-x-1.5">
+                                                <span>AI Classification Core</span>
+                                                <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-mono">0.7993 Score</span>
+                                            </div>
+                                            <div class="text-[11px] text-slate-400">Issue Taxonomy • Severity Floors • Actionability</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300">Zero Latency</span>
+                                </div>
+
+                                <!-- Flow Arrow -->
+                                <div class="flex justify-center -my-1 text-slate-500">
+                                    <svg class="w-4 h-4 text-emerald-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                </div>
+
+                                <!-- Step 3: Closed-Loop Store Action -->
+                                <div class="p-3 bg-navy-900/90 rounded-xl border border-slate-700 flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+                                            🎯
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-white text-xs">Store Manager Remediation</div>
+                                            <div class="text-[11px] text-slate-400">Root-Cause Action • Customer Notification • Audit Log</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300">Closed Loop</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Features Section -->
+            <div id="features" class="space-y-8">
+                <div class="text-center max-w-3xl mx-auto space-y-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                        Platform Capabilities
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-900">
+                        Engineered for Operational Excellence
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-600">
+                        A robust, end-to-end feedback intelligence platform connecting customers, frontline store operations, and executive leadership.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Feature 1: Centralized Feedback -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition card-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
+                                    📥
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Operational
+                                </span>
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Centralized Feedback</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Continuous multi-channel ingestion capturing Google Reviews, in-app submissions, call center logs, and staff shift notes across all 60 stores in a unified repository.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex items-center text-xs text-slate-500 font-medium">
+                            <span>Ingests 4 distinct channel formats</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 2: AI-Powered Classification -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition card-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+                                    ⚡
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Operational
+                                </span>
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">AI-Powered Classification</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Calibrated machine learning taxonomy automatically categorizes raw customer comments by issue type, responsible owning department, severity floors, and operational actionability.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex items-center text-xs text-slate-500 font-medium">
+                            <span>LinearSVC • Calibrated Multi-Output Model</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 3: Recurring Issue Detection -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition card-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-xl font-bold">
+                                    📡
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Operational
+                                </span>
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Recurring Issue Detection</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Emerging-issue radar uses strictly causal historical baselines to flag store-level complaint surges and critical hazard clusters with cited evidence before chain-wide escalation.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex items-center text-xs text-slate-500 font-medium">
+                            <span>+1 Week Early Warning Lead Time</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 4: Store-Level Insights -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition card-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+                                    🏬
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Operational
+                                </span>
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Store-Level Insights</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Granular store KPIs benchmark performance against store format (Hyper, Market, Express), weekly footfall volumes, and 5 geographic operating regions.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex items-center text-xs text-slate-500 font-medium">
+                            <span>Full 60-store directory & metrics</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 5: Resolution Tracking -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition card-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                                    🛡️
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Operational
+                                </span>
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Resolution Tracking</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Closed-loop lifecycle tracking from New to Acknowledged, Investigating, and Resolved with mandatory manager corrective notes and permanent audit timeline entries.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex items-center text-xs text-slate-500 font-medium">
+                            <span>Tamper-evident audit timeline</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature 6: Role-Based Access -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition card-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold">
+                                    🔐
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Operational
+                                </span>
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Role-Based Access</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Strict cryptographic JWT authentication and role segregation: Customer isolation, store managers locked to assigned stores, and HQ Admin network governance.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex items-center text-xs text-slate-500 font-medium">
+                            <span>Dual Supabase & SQLite RBAC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works Section -->
+            <div id="how-it-works" class="space-y-8">
+                <div class="text-center max-w-3xl mx-auto space-y-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-blue-100 text-blue-800 border border-blue-200">
+                        Workflow Architecture
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-900">
+                        How Voice of Store Engine Works
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-600">
+                        From raw, unstructured customer sentiment to on-the-ground operational resolution in four automated steps.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Step 1 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm relative flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-extrabold text-lg shadow-sm">
+                                01
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Collect Feedback</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Customer ratings, app submissions, staff shift notes, and verified customer observations are ingested in real time across the retail network.
+                            </p>
+                        </div>
+                        <div class="pt-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            Stage 1 • Ingestion
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm relative flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-extrabold text-lg shadow-sm">
+                                02
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Classify & Organize</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                The machine learning engine parses text to determine specific issue categories, assigns functional owners, and computes severity and actionability scores.
+                            </p>
+                        </div>
+                        <div class="pt-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            Stage 2 • AI Triage
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm relative flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-extrabold text-lg shadow-sm">
+                                03
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Identify Recurring Issues</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                The emerging-issues radar detects statistical spikes and localized hazards, alerting store managers with direct customer quote evidence.
+                            </p>
+                        </div>
+                        <div class="pt-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            Stage 3 • Spike Detection
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm relative flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-extrabold text-lg shadow-sm">
+                                04
+                            </div>
+                            <h3 class="text-base font-bold text-navy-900">Review & Resolve</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Store managers execute corrective actions, enter resolution notes, and update incident statuses in an immutable audit log visible to customers.
+                            </p>
+                        </div>
+                        <div class="pt-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            Stage 4 • Closed-Loop Action
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Portals Section -->
+            <div id="portals" class="space-y-8">
+                <div class="text-center max-w-3xl mx-auto space-y-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        Dedicated Portals
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-900">
+                        Choose Your Workspace
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-600">
+                        Purpose-built portals delivering secure, contextual access for retail customers, store managers, and executive administrators.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Portal 1: Customer Portal -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center text-2xl font-bold">
+                                👤
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-extrabold text-navy-900">Customer Portal</h3>
+                                <p class="text-xs text-slate-500 font-medium">For Shoppers & Community</p>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Submit store feedback, rate shopping experiences, track submission lifecycle from triage to resolution, and review manager corrective actions.
+                            </p>
+                            <ul class="text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-3">
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Instant in-store submission form</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Personal submission history</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Store manager resolution updates</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <!-- Primary Standard Authentication -->
+                            <button onclick="openAuthModalForRole('customer')" class="w-full py-2.5 px-4 rounded-xl bg-saffron-500 hover:bg-saffron-600 text-navy-900 font-bold text-xs shadow-sm transition flex items-center justify-center space-x-2">
+                                <span>Customer Sign In / Register</span>
+                            </button>
+                            <!-- Clearly Separated Demo Option -->
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                                <span class="text-slate-500 font-medium text-[11px]">Demo Persona:</span>
+                                <button onclick="quickLoginDemo('customer')" class="px-2.5 py-1 bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-800 border border-slate-300 rounded text-[11px] font-semibold transition shadow-2xs">
+                                    Aarav Sharma (Demo)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Portal 2: Store Manager Portal -->
+                    <div class="bg-white rounded-2xl border-2 border-amber-300/80 p-6 shadow-md hover:shadow-lg transition flex flex-col justify-between space-y-6 relative">
+                        <div class="absolute -top-3 right-6 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-navy-900 uppercase tracking-wider shadow-sm">
+                            Frontline Ops
+                        </div>
+                        <div class="space-y-4">
+                            <div class="w-12 h-12 rounded-2xl bg-saffron-500/10 border border-saffron-500/30 text-saffron-700 flex items-center justify-center text-2xl font-bold">
+                                🏬
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-extrabold text-navy-900">Store Manager Workspace</h3>
+                                <p class="text-xs text-slate-500 font-medium">For On-the-Ground Store Operations</p>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Store-bound operational command center: triage local customer complaints, investigate weekly emerging alerts, and log permanent corrective actions.
+                            </p>
+                            <ul class="text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-3">
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Store-restricted feedback inbox</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>High/Critical emerging alert radar</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Audited incident resolution flow</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <!-- Primary Standard Authentication -->
+                            <button onclick="openAuthModalForRole('manager')" class="w-full py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-slate-800 text-amber-400 font-bold text-xs shadow-sm transition flex items-center justify-center space-x-2">
+                                <span>Store Manager Sign In</span>
+                            </button>
+                            <!-- Clearly Separated Demo Option -->
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                                <div class="text-slate-500 font-medium text-[11px]">Demo Personas:</div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="quickLoginDemo('kankarbagh')" class="py-1 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded text-[11px] font-semibold transition text-center shadow-2xs">
+                                        Kankarbagh (Demo)
+                                    </button>
+                                    <button onclick="quickLoginDemo('kothrud')" class="py-1 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded text-[11px] font-semibold transition text-center shadow-2xs">
+                                        Kothrud (Demo)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Portal 3: Administrator Portal -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center text-2xl font-bold">
+                                👑
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-extrabold text-navy-900">Administrator Portal</h3>
+                                <p class="text-xs text-slate-500 font-medium">For Corporate & HQ Leadership</p>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Complete network oversight: browse all 60 stores, review weekly regional operational briefs, monitor classification precision, and switch store views.
+                            </p>
+                            <ul class="text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-3">
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Full 60-store directory management</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Regional operational briefs & KPIs</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-emerald-500 font-bold">✓</span>
+                                    <span>Model evaluation & precision scorecard</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <!-- Primary Standard Authentication -->
+                            <button onclick="openAuthModalForRole('admin')" class="w-full py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-slate-800 text-amber-400 font-bold text-xs shadow-sm transition flex items-center justify-center space-x-2">
+                                <span>Administrator Sign In</span>
+                            </button>
+                            <!-- Clearly Separated Demo Option -->
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                                <span class="text-slate-500 font-medium text-[11px]">Demo Persona:</span>
+                                <button onclick="quickLoginDemo('admin')" class="px-2.5 py-1 bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-800 border border-slate-300 rounded text-[11px] font-semibold transition shadow-2xs">
+                                    HQ Admin (Demo)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 1: OVERVIEW & REGIONAL BRIEFS -->
+        <!-- ============================================================= -->
+        <section id="view-overview" class="space-y-8 hidden">
+            <!-- Dashboard Header -->
+            <div class="border-b border-slate-200 pb-4">
+                <h2 class="text-xl font-extrabold text-navy-900">Platform Operational Overview</h2>
+                <p class="text-xs text-slate-500 mt-1">Track customer feedback, identify recurring store-level issues, and support faster resolution.</p>
+            </div>
+
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Feedback Stream</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">💬</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-navy-900" id="kpi-total">39,769</span>
+                        <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">26 Weeks Stream</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Reviews, in-app, staff notes, transcripts</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Actionable Issues</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">🎯</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-emerald-600" id="kpi-actionable">22,214</span>
+                        <span class="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded" id="kpi-actionable-pct">55.9%</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Specific, routable operational issues</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">High / Critical Hazards</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⚠️</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-amber-600" id="kpi-high">6,061</span>
+                        <span class="text-xs font-medium text-red-700 bg-red-100 px-2 py-0.5 rounded" id="kpi-critical">476 Critical</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Policy floors enforced: safety, hygiene, HR</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stores Monitored</span>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">🏬</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-navy-900" id="kpi-stores">60</span>
+                        <span class="text-xs font-medium text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">5 Regions</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Hyper, Market, & Express formats</p>
+                </div>
+            </div>
+
+            <!-- Weekly Regional Brief Generator -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-navy-900 flex items-center space-x-2">
+                            <span>Weekly Regional Operational Brief</span>
+                            <span class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Deliverable #1</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Prioritised Top 5 action items per region with trend arrows and evidence quotes.</p>
+                    </div>
+
+                    <!-- Region and Week Controls -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Region:</label>
+                            <select id="briefRegionSelect" onchange="loadRegionalBrief()" class="text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-white font-medium focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                                <option value="North" selected>North Region</option>
+                                <option value="South">South Region</option>
+                                <option value="East">East Region</option>
+                                <option value="West">West Region</option>
+                                <option value="Central">Central Region</option>
+                                <option value="All">All Regions (National)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Week of:</label>
+                            <select id="briefWeekSelect" onchange="loadRegionalBrief()" class="text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-white font-medium focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brief Top 5 Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-semibold border-b border-slate-200">
+                                <th class="py-3 px-3 w-12 text-center">Rank</th>
+                                <th class="py-3 px-4">Issue Category & Owner</th>
+                                <th class="py-3 px-3 text-center">Volume</th>
+                                <th class="py-3 px-3 text-center">Trend (vs Last Wk)</th>
+                                <th class="py-3 px-4">Affected Stores</th>
+                                <th class="py-3 px-4 w-2/5">Ground Evidence Quotes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="briefTableBody" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Populated dynamically -->
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-slate-400">Loading regional brief data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 2: EMERGING ISSUES RADAR -->
+        <!-- ============================================================= -->
+        <section id="view-alerts" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-navy-900 flex items-center space-x-2">
+                            <span>Emerging-Issue Detection Radar</span>
+                            <span class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Deliverable #3</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Flags store-level clusters rising sharply before they escalate chain-wide. Fully causal (strictly as-of Sunday).</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-medium text-slate-500">Scored Worked Example:</span>
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 text-xs font-bold">
+                            EX-1: Caught 1 Wk Early (Lead Score: 0.500)
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Alert Cards Grid -->
+                <div id="alertsContainer" class="space-y-4">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 3: LIVE CLASSIFIER DEMO -->
+        <!-- ============================================================= -->
+        <section id="view-classifier" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Input Form -->
+                <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
+                    <div>
+                        <h2 class="text-lg font-bold text-navy-900">Live Voice-of-Store Feedback Triage</h2>
+                        <p class="text-xs text-slate-500">Test real-time multilingual classification, severity policy floors, and actionability routing.</p>
+                    </div>
+
+                    <!-- Presets -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-2">Preset Samples for Quick Testing:</label>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <button onclick="setSample('freezer')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-200 transition">❄️ Broken Chiller (High Severity)</button>
+                            <button onclick="setSample('allergen')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-200 transition">⚠️ Allergen / Hospital (Critical)</button>
+                            <button onclick="setSample('billing')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-200 transition">💳 Slow Billing Queue (Store Ops)</button>
+                            <button onclick="setSample('marathi')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-200 transition">🇮🇳 Marathi / Expired Milk</button>
+                            <button onclick="setSample('praise')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-200 transition">🌟 Customer Praise (Non-Issue)</button>
+                        </div>
+                    </div>
+
+                    <form id="classifyForm" onsubmit="handleClassify(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Feedback Text:</label>
+                            <textarea id="inputText" rows="4" required class="w-full text-xs border border-slate-300 rounded-lg p-3 font-mono focus:ring-2 focus:ring-saffron-500 focus:outline-none" placeholder="Enter customer review, in-app comment, call-centre transcript, or staff shift note..."></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Channel:</label>
+                                <select id="inputChannel" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white">
+                                    <option value="in_app">in_app</option>
+                                    <option value="online_review">online_review</option>
+                                    <option value="staff_shift_note">staff_shift_note</option>
+                                    <option value="call_centre_ticket">call_centre_ticket</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Rating (1-5):</label>
+                                <select id="inputRating" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white">
+                                    <option value="">None / Not Applicable</option>
+                                    <option value="1">1 Star</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="5">5 Stars</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Store ID (optional):</label>
+                                <input type="text" id="inputStoreId" placeholder="e.g. ST-D69EG (or empty)" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-1.5">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnClassify" class="w-full py-2.5 bg-saffron-500 hover:bg-saffron-600 text-navy-900 font-bold rounded-lg text-xs shadow transition flex items-center justify-center space-x-2">
+                            <span>Classify & Route Feedback</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Result Card -->
+                <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-navy-900 uppercase tracking-wider border-b border-slate-100 pb-2">Inference & Routing Decision</h3>
+
+                    <div id="resultPlaceholder" class="py-16 text-center text-slate-400 text-xs">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Submit feedback on the left or select a preset to view automated routing.
+                    </div>
+
+                    <div id="resultContent" class="space-y-4 hidden text-xs">
+                        <!-- Category & Function -->
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase">Predicted Issue Category</span>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-sm text-navy-900" id="resIssueName">Refrigeration Failure</span>
+                                <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold" id="resIssueId">IT10</span>
+                            </div>
+                            <div class="text-[11px] text-slate-600 flex items-center space-x-2">
+                                <span>Owner Function:</span>
+                                <strong class="text-indigo-600" id="resOwnerFunc">Store Ops</strong>
+                            </div>
+                        </div>
+
+                        <!-- Severity & Policy Floor -->
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase">Severity Triage</span>
+                            <div class="flex items-center space-x-3">
+                                <span class="px-3 py-1 rounded-md font-bold text-xs" id="resSeverityBadge">High</span>
+                                <span class="text-slate-500 text-[11px]">Policy Floor: <strong id="resFloor">high</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Actionability & Routing Destination -->
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase">Actionability & Dispatch</span>
+                            <div class="flex items-center space-x-3">
+                                <span class="px-3 py-1 rounded-md font-bold text-xs" id="resActionableBadge">Actionable (1)</span>
+                                <span class="text-slate-500 text-[11px]" id="resRoutableText">Routable to store</span>
+                            </div>
+                            <div class="mt-2 text-[11px] bg-white p-2 rounded border border-slate-200 text-slate-700">
+                                <span class="font-semibold text-navy-900">Destination: </span>
+                                <span id="resDestination">Store Ops Queue</span>
+                            </div>
+                        </div>
+
+                        <!-- Store Resolution Info -->
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-[11px] space-y-1">
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase">Store Locality Resolution</span>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-600">Assigned Store:</span>
+                                <strong class="text-slate-800" id="resStoreName">Saffron Market Kothrud</strong>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] text-slate-500">
+                                <span>Resolution Source:</span>
+                                <span id="resStoreSource">locality_match</span>
+                            </div>
+                        </div>
+
+                        <!-- Confidence Bar -->
+                        <div>
+                            <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                                <span>Model Confidence:</span>
+                                <strong id="resConfText">98.4%</strong>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                <div id="resConfBar" class="bg-amber-500 h-2 rounded-full" style="width: 98%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 4: FEEDBACK STREAM EXPLORER -->
+        <!-- ============================================================= -->
+        <section id="view-explorer" class="space-y-4 hidden">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-navy-900">Feedback Stream Explorer</h2>
+                        <p class="text-xs text-slate-500">Search and audit all 39,769 feedback records, predicted categories, and operational routing.</p>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="w-full md:w-72">
+                        <input type="text" id="explorerSearch" onkeyup="debounceSearch()" placeholder="Search keywords, items, cities..." class="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div>
+                        <label class="block text-slate-500 text-[11px] mb-1 font-medium">Channel:</label>
+                        <select id="filterChannel" onchange="loadExplorerFeedback(1)" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white">
+                            <option value="All">All Channels</option>
+                            <option value="in_app">in_app</option>
+                            <option value="online_review">online_review</option>
+                            <option value="staff_shift_note">staff_shift_note</option>
+                            <option value="call_centre_ticket">call_centre_ticket</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 text-[11px] mb-1 font-medium">Severity:</label>
+                        <select id="filterSeverity" onchange="loadExplorerFeedback(1)" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white">
+                            <option value="All">All Severities</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 text-[11px] mb-1 font-medium">Actionable:</label>
+                        <select id="filterActionable" onchange="loadExplorerFeedback(1)" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white">
+                            <option value="">All</option>
+                            <option value="1">Actionable (1)</option>
+                            <option value="0">Non-Actionable (0)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 text-[11px] mb-1 font-medium">Region:</label>
+                        <select id="filterRegion" onchange="loadExplorerFeedback(1)" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white">
+                            <option value="All">All Regions</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="East">East</option>
+                            <option value="West">West</option>
+                            <option value="Central">Central</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Explorer Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-semibold border-b border-slate-200">
+                                <th class="py-2.5 px-3">ID / Channel</th>
+                                <th class="py-2.5 px-3">Store & Region</th>
+                                <th class="py-2.5 px-4 w-2/5">Feedback Text</th>
+                                <th class="py-2.5 px-3">Predicted Issue</th>
+                                <th class="py-2.5 px-2 text-center">Severity</th>
+                                <th class="py-2.5 px-2 text-center">Actionable</th>
+                            </tr>
+                        </thead>
+                        <tbody id="explorerTableBody" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
+                    <span id="explorerPaginationInfo">Showing 1 to 20 of 39,769 records</span>
+                    <div class="flex space-x-2">
+                        <button id="btnPrevPage" onclick="changePage(-1)" class="px-3 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50">Previous</button>
+                        <button id="btnNextPage" onclick="changePage(1)" class="px-3 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50">Next</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 5: OFFICIAL SCORECARD & PRECISION -->
+        <!-- ============================================================= -->
+        <section id="view-scorecard" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-navy-900 flex items-center space-x-2">
+                            <span>Official Evaluator Scorecard & Precision Statement</span>
+                            <span class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Deliverables #4 & #5</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Evaluation results scored by evaluate.py against benchmark ground truth.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>ML Engine: <strong class="text-emerald-700">Calibrated LinearSVC</strong></span>
+                        </div>
+                        <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700">
+                            <span class="text-slate-500">Evaluator Score:</span>
+                            <strong class="text-navy-900" id="headerScoreBadge">0.7993</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Primary Overall Score</span>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-3xl font-extrabold text-navy-900">0.7993</span>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">+66.2%</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Official Baseline: <strong>0.4808</strong></p>
+                    </div>
+
+                    <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Classification (60% Weight)</span>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-3xl font-extrabold text-navy-900">0.9988</span>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">Verified Scorer</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Macro-F1: 1.0000 | Severity-F1: 0.9951 | Act-F1: 1.0000</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Lead Time (40% Weight)</span>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-3xl font-extrabold text-emerald-600">0.5000</span>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">+1 Wk Lead</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Flagged Week 2026-05-11 vs. Naive 2026-05-18</p>
+                    </div>
+                </div>
+
+                <!-- Precision Statement Table -->
+                <div class="border border-slate-200 rounded-lg p-4 bg-slate-50 space-y-3 text-xs">
+                    <h3 class="font-bold text-navy-900 text-sm">Official Precision Statement (Quote in Presentation):</h3>
+                    <ul class="list-disc list-inside space-y-1.5 text-slate-700">
+                        <li><strong>Escalated Records Actionability:</strong> Of the 1,776 records flagged as actionable by the engine, <strong>100.0% were truly actionable operational issues</strong>.</li>
+                        <li><strong>High/Critical Escalation Precision:</strong> Of all records escalated as both actionable AND high/critical, <strong>100.0% were confirmed truly actionable</strong>.</li>
+                        <li><strong>Flag Evidence Rejections:</strong> <strong>0 rejected flags</strong> across all 18 evaluated flags (100% evidence validity pass rate).</li>
+                        <li><strong>False Alarm Reduction:</strong> Emits an average of <strong>1.38 flags/week</strong> (strictly beneath the 3.0 flood penalty ceiling), tripling flag precision from 3.7% → 11.1%.</li>
+                    </ul>
+                </div>
+
+                <!-- Verification Limitation Notice -->
+                <div class="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs text-slate-600 space-y-1">
+                    <span class="font-bold text-amber-900 text-[11px] uppercase tracking-wider">Evaluation Verifiability Note</span>
+                    <p class="leading-relaxed">All metrics displayed are strictly calculated by official <code class="font-mono bg-white px-1 py-0.5 rounded border border-amber-200">evaluate.py</code> and verified in <code class="font-mono bg-white px-1 py-0.5 rounded border border-amber-200">score.json</code> against ground-truth benchmarks across 3,000 records. Preliminary unverified metrics are omitted to maintain evaluation integrity.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 6: STORE MANAGER WORKSPACE & OPERATIONAL ACTION CENTER -->
+        <!-- ============================================================= -->
+        <section id="view-manager" class="space-y-8 hidden">
+            <!-- Auth Required Notification (Shown when not authenticated as store_manager/admin) -->
+            <div id="managerAuthGate" class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm text-center max-w-xl mx-auto space-y-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center font-bold text-2xl mx-auto">
+                    🔒
+                </div>
+                <div class="space-y-1">
+                    <span class="px-2 py-0.5 text-xs font-bold bg-amber-100 text-amber-800 rounded">Access Protected</span>
+                    <h2 class="text-xl font-bold text-navy-900 mt-2">Store Manager Authentication Required</h2>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto">
+                        The Manager Workspace delivers private store-level feedback feeds, localized customer complaints, and actionable incident alerts strictly restricted to assigned store managers.
+                    </p>
+                </div>
+                <div class="pt-2 flex items-center justify-center gap-3">
+                    <button onclick="openAuthModalForRole('manager')" class="px-5 py-2.5 rounded-xl bg-saffron-500 hover:bg-saffron-600 text-navy-900 font-bold text-xs shadow transition">
+                        Sign In as Store Manager
+                    </button>
+                    <button onclick="switchTab('home')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Store Manager Header Bar (Shown when authenticated) -->
+            <div id="managerActiveHeader" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hidden">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-saffron-500/10 text-saffron-600 border border-saffron-500/20 flex items-center justify-center font-bold text-2xl">
+                            🏬
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h2 class="text-xl font-extrabold text-navy-900" id="mgrStoreName">Loading store...</h2>
+                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200" id="mgrStoreIdBadge">ST-D69EG</span>
+                                <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700" id="mgrStoreFormat">Format</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5" id="mgrStoreLocation">City, Region • Active Manager: <strong id="mgrUserDisplay">name@saffron.example</strong></p>
+                            <p class="text-xs text-slate-500 mt-1">Track customer feedback, identify recurring store-level issues, and support faster resolution.</p>
+                        </div>
+                    </div>
+
+                    <!-- Store Switcher for Admin Only -->
+                    <div class="flex items-center space-x-2">
+                        <div id="mgrAdminStoreSelectGroup" class="hidden flex items-center space-x-2">
+                            <label class="text-xs font-semibold text-slate-600" id="mgrAdminStoreLabel">Admin Store View (60 Stores):</label>
+                            <select id="mgrAdminStoreSelect" onchange="switchAdminStore(this.value)" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:ring-2 focus:ring-saffron-500 max-w-[260px]">
+                                <!-- Populated dynamically with all 60 stores -->
+                            </select>
+                            <button type="button" onclick="openStoreManagementModal()" id="btnOpenStoreManagement" class="px-2.5 py-1.5 bg-navy-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg flex items-center space-x-1 shadow-sm transition">
+                                <span>🏪 Store Directory (<span id="adminStoreCountBadge">60</span>)</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-1.5 text-xs">
+                            <button onclick="logoutManagerWorkspace()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Store Manager Sub-Navigation Switcher (8 Planned Sections) -->
+                <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-100 mt-4 text-xs font-semibold" id="managerSubNavSwitcher">
+                    <button type="button" onclick="showManagerSubView('overview')" id="btnMgrSubOverview" class="px-3.5 py-2 rounded-lg bg-saffron-500 text-navy-900 font-bold transition shadow-xs flex items-center space-x-1.5" aria-current="page">
+                        <span>🏬</span>
+                        <span>Overview & KPIs</span>
+                    </button>
+                    <button type="button" onclick="showManagerSubView('insights')" id="btnMgrSubInsights" class="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+                        <span>💡</span>
+                        <span>Emerging Insights</span>
+                    </button>
+                    <button type="button" onclick="showManagerSubView('inbox')" id="btnMgrSubInbox" class="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+                        <span>📥</span>
+                        <span>Feedback Inbox</span>
+                    </button>
+                    <button type="button" onclick="showManagerSubView('alerts')" id="btnMgrSubAlerts" class="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+                        <span>📡</span>
+                        <span>Weekly Alerts</span>
+                    </button>
+                    <button type="button" onclick="showManagerSubView('actions')" id="btnMgrSubActions" class="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+                        <span>⚡</span>
+                        <span>Action Center</span>
+                    </button>
+                    <button type="button" onclick="showManagerSubView('analytics')" id="btnMgrSubAnalytics" class="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+                        <span>📈</span>
+                        <span>Historical Analytics</span>
+                    </button>
+                    <button type="button" onclick="showManagerSubView('reports')" id="btnMgrSubReports" class="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+                        <span>📑</span>
+                        <span>Store Reports</span>
+                    </button>
+                    <button type="button" onclick="showManagerSubView('settings')" id="btnMgrSubSettings" class="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+                        <span>⚙️</span>
+                        <span>Store Settings</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Store KPI Cards -->
+            <div id="managerKpiCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 hidden">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Store Feedback Volume</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">📥</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-navy-900" id="mgrKpiTotalFeedback">0</span>
+                        <span class="text-xs font-medium text-slate-500">All Channels</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Reviews, in-app & staff notes</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Actionable Issues</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">🎯</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-emerald-600" id="mgrKpiActionableCount">0</span>
+                        <span class="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded" id="mgrKpiActionablePct">0%</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Routable operational issues</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Emerging Alerts</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⚠️</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-amber-600" id="mgrKpiActiveAlerts">0</span>
+                        <span class="text-xs font-medium text-amber-800 bg-amber-100 px-2 py-0.5 rounded" id="mgrKpiNewAlerts">0 New</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Statistically flagged spikes</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Resolved Incidents</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">✅</div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span class="text-3xl font-extrabold text-navy-900" id="mgrKpiResolvedCount">0</span>
+                        <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Closed</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Corrective actions logged</p>
+                </div>
+            </div>
+
+            <!-- Store Emerging Alerts & Incident Action Center -->
+            <div id="managerAlertsSection" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden">
+                <div class="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                            <h3 class="font-bold text-lg text-navy-900">Store Emerging Alerts & Incident Action Center</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Anomalous spikes flagged at this store before regional spread. Acknowledge, investigate, and record verified resolutions.
+                        </p>
+                    </div>
+                    <button onclick="loadManagerAlerts()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5 self-start md:self-auto">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span>Refresh Alerts</span>
+                    </button>
+                </div>
+
+                <!-- Alerts Spike Volume Comparison Chart -->
+                <div id="mgrAlertsChartWrapper" class="px-6 pt-5 pb-1 hidden">
+                    <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-700">Baseline vs Anomalous Spike Volume</span>
+                            <span class="text-[11px] text-slate-400">Weekly Moving Average Comparison</span>
+                        </div>
+                        <div class="relative w-full" style="height: 220px;">
+                            <canvas id="chartMgrAlertsSpikes"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerts List Container -->
+                <div id="managerAlertsList" class="p-6 space-y-4">
+                    <div class="text-center py-8 text-slate-400 text-xs">Loading store alerts...</div>
+                </div>
+            </div>
+
+            <!-- Store Feedback Stream & Operational Inbox -->
+            <div id="managerInboxSection" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden">
+                <div class="p-6 border-b border-slate-200 space-y-4 bg-slate-50/50">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-navy-900">Store Feedback Stream & Operational Inbox</h3>
+                            <p class="text-xs text-slate-500 mt-1">
+                                Full localized customer and staff feedback stream with ML taxonomy, severity, and actionability tags.
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-slate-500" id="managerInboxCountBadge">0 records</span>
+                        </div>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Search Feedback</label>
+                            <input type="text" id="mgrFilterSearch" placeholder="Search keywords..." oninput="debounceManagerSearch()" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Severity</label>
+                            <select id="mgrFilterSeverity" onchange="loadManagerInbox(1)" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white">
+                                <option value="">All Severities</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Actionability</label>
+                            <select id="mgrFilterActionable" onchange="loadManagerInbox(1)" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white">
+                                <option value="">All Issues</option>
+                                <option value="1">Actionable Only (1)</option>
+                                <option value="0">Non-Actionable (0)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Channel</label>
+                            <select id="mgrFilterChannel" onchange="loadManagerInbox(1)" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white">
+                                <option value="">All Channels</option>
+                                <option value="online_review">Online Reviews</option>
+                                <option value="in_app">In-App Feedback</option>
+                                <option value="staff_shift_note">Staff Shift Notes</option>
+                                <option value="call_centre_ticket">Call Centre Tickets</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inbox Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-100 text-slate-600 uppercase font-semibold text-[11px] tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-3">ID</th>
+                                <th class="py-3 px-3">Channel</th>
+                                <th class="py-3 px-3">Date</th>
+                                <th class="py-3 px-2 text-center">Rating</th>
+                                <th class="py-3 px-4 w-1/3">Feedback / Observation</th>
+                                <th class="py-3 px-3">Issue Taxonomy</th>
+                                <th class="py-3 px-3">Owner</th>
+                                <th class="py-3 px-2 text-center">Severity</th>
+                                <th class="py-3 px-2 text-center">Actionable</th>
+                                <th class="py-3 px-3 text-center">Status & Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="managerInboxTableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="10" class="text-center py-8 text-slate-400">Loading feedback stream...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Inbox Pagination Footer -->
+                <div class="p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs bg-slate-50">
+                    <span class="text-slate-500" id="mgrPaginationInfo">Showing 0 of 0</span>
+                    <div class="flex items-center space-x-2">
+                        <button id="btnMgrPrev" onclick="navigateManagerInbox(-1)" class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+                            Previous
+                        </button>
+                        <span class="px-3 py-1.5 font-bold text-slate-700" id="mgrCurrentPage">1</span>
+                        <button id="btnMgrNext" onclick="navigateManagerInbox(1)" class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Store Emerging Insights & Friction Drivers -->
+            <div id="managerInsightsSection" class="space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                            <span>💡</span>
+                            <span>Store Emerging Insights & Root Cause Drivers</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Granular breakdown of top recurring customer friction points and department ownership for this store location.</p>
+                    </div>
+                    <button onclick="loadManagerInsights()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                        Refresh Insights
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sm text-navy-900">Top Friction Categories</h4>
+                            <span class="text-[11px] text-slate-400">Feedback Volume Breakdown</span>
+                        </div>
+                        <div class="relative w-full" style="height: 220px;">
+                            <canvas id="chartMgrTopIssues"></canvas>
+                        </div>
+                        <div id="mgrInsightsTopIssues" class="space-y-3 pt-2">
+                            <div class="text-xs text-slate-400 py-4 text-center">Loading insights...</div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-bold text-sm text-navy-900">Severity Breakdown</h4>
+                                <span class="text-[11px] text-slate-400">Triage Levels</span>
+                            </div>
+                            <div class="relative w-full flex justify-center" style="height: 180px;">
+                                <canvas id="chartMgrSeverity"></canvas>
+                            </div>
+                            <div id="mgrInsightsSeverity" class="space-y-2 text-xs">Loading...</div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <h4 class="font-bold text-sm text-navy-900">Department Ownership</h4>
+                            <div id="mgrInsightsDepts" class="space-y-2 text-xs">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 8: Store Incident Action Center & Remediation Log -->
+            <div id="managerActionCenterSection" class="space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                            <span>⚡</span>
+                            <span>Store Incident Action Center</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Unified operational queue of customer submissions and statistical alerts requiring acknowledgement, investigation, or resolution notes.</p>
+                    </div>
+                    <button onclick="loadManagerActions()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                        Refresh Queue
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4" id="mgrActionSummaryCards">
+                        <div class="bg-amber-50/70 border border-amber-200 p-4 rounded-xl">
+                            <span class="text-xs font-bold text-amber-800 uppercase">Pending Review</span>
+                            <div class="text-2xl font-extrabold text-amber-900 mt-1" id="mgrActionPendingCount">0</div>
+                        </div>
+                        <div class="bg-indigo-50/70 border border-indigo-200 p-4 rounded-xl">
+                            <span class="text-xs font-bold text-indigo-800 uppercase">Investigating</span>
+                            <div class="text-2xl font-extrabold text-indigo-900 mt-1" id="mgrActionInvestigatingCount">0</div>
+                        </div>
+                        <div class="bg-blue-50/70 border border-blue-200 p-4 rounded-xl">
+                            <span class="text-xs font-bold text-blue-800 uppercase">Acknowledged</span>
+                            <div class="text-2xl font-extrabold text-blue-900 mt-1" id="mgrActionAcknowledgedCount">0</div>
+                        </div>
+                        <div class="bg-emerald-50/70 border border-emerald-200 p-4 rounded-xl">
+                            <span class="text-xs font-bold text-emerald-800 uppercase">Resolved</span>
+                            <div class="text-2xl font-extrabold text-emerald-900 mt-1" id="mgrActionResolvedCount">0</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center">
+                        <div class="flex items-center justify-between w-full mb-1">
+                            <span class="text-xs font-bold text-slate-700">Resolution Status</span>
+                            <span class="text-[11px] text-slate-400">Queue Balance</span>
+                        </div>
+                        <div class="relative w-full flex justify-center" style="height: 140px;">
+                            <canvas id="chartMgrActionProgress"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                    <h4 class="font-bold text-sm text-navy-900">Action Queue & History</h4>
+                    <div id="mgrActionFeed" class="space-y-3">
+                        <div class="text-xs text-slate-400 py-6 text-center">Loading action queue...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 9: Historical Analytics -->
+            <div id="managerAnalyticsSection" class="space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                            <span>📈</span>
+                            <span>Historical Analytics & Satisfaction Trends</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Multi-week volume trajectories, rating distributions, and channel sentiment analysis.</p>
+                    </div>
+                    <button onclick="loadManagerAnalytics()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                        Refresh Analytics
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Store Customer Rating</span>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-4xl font-extrabold text-navy-900" id="mgrAnalyticsAvgRating">0.0</span>
+                            <span class="text-sm font-semibold text-amber-500">/ 5.0 ⭐</span>
+                        </div>
+                        <div class="relative w-full my-2" style="height: 130px;">
+                            <canvas id="chartMgrRatings"></canvas>
+                        </div>
+                        <div id="mgrAnalyticsRatingBars" class="space-y-1.5 pt-2 text-xs">Loading ratings...</div>
+                    </div>
+
+                    <div class="md:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Recent Weekly Volume Trajectory</span>
+                            <span class="text-[11px] text-slate-400">Total vs Actionable Volume</span>
+                        </div>
+                        <div class="relative w-full" style="height: 180px;">
+                            <canvas id="chartMgrWeeklyTrend"></canvas>
+                        </div>
+                        <div id="mgrAnalyticsWeeklyTrend" class="space-y-2 pt-2">Loading weekly trend...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 10: Store Operational Reports -->
+            <div id="managerReportsSection" class="space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                            <span>📑</span>
+                            <span>Store Operational Summary Reports</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Comprehensive compliance and performance summaries ready for leadership reviews and audit filing.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="downloadStoreReportCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5">
+                            <span>📥</span>
+                            <span>Download CSV</span>
+                        </button>
+                        <button onclick="window.print()" class="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5">
+                            <span>🖨️</span>
+                            <span>Print / PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6" id="mgrReportPrintArea">
+                    <div class="border-b border-slate-100 pb-4 flex justify-between items-start">
+                        <div>
+                            <span class="font-mono text-xs text-slate-400 font-bold" id="mgrReportId">REP-ST-D69EG</span>
+                            <h4 class="text-xl font-extrabold text-navy-900 mt-1" id="mgrReportStoreName">Saffron Market Store</h4>
+                            <p class="text-xs text-slate-500" id="mgrReportGeneratedAt">Generated: Just now</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200" id="mgrReportRank">Tier-1 Audit</span>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-xs leading-relaxed text-slate-700" id="mgrReportExecutiveSummary">
+                        Loading executive summary...
+                    </div>
+
+                    <!-- Report Categories Chart -->
+                    <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-700">Audit Category Distribution</span>
+                            <span class="text-[11px] text-slate-400">Actionable Feedback Breakdown</span>
+                        </div>
+                        <div class="relative w-full" style="height: 180px;">
+                            <canvas id="chartMgrReportCategories"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        <div class="p-4 bg-slate-50 rounded-xl">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase">Total Ingested</span>
+                            <div class="text-2xl font-extrabold text-navy-900 mt-1" id="mgrReportTotalFeedback">0</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase">Actionable</span>
+                            <div class="text-2xl font-extrabold text-emerald-600 mt-1" id="mgrReportActionable">0</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase">Active Alerts</span>
+                            <div class="text-2xl font-extrabold text-amber-600 mt-1" id="mgrReportActiveAlerts">0</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase">Resolved Incidents</span>
+                            <div class="text-2xl font-extrabold text-navy-900 mt-1" id="mgrReportResolved">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 11: Store Settings -->
+            <div id="managerSettingsSection" class="space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                            <span>⚙️</span>
+                            <span>Store Operational Settings & Metadata</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Profile configuration, monitoring tiers, and alert notification dispatch settings.</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span id="mgrSettingsLastSaved" class="text-[11px] text-slate-400 font-mono"></span>
+                        <button onclick="loadManagerSettings()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                            Reload
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h4 class="font-bold text-sm text-navy-900 border-b border-slate-100 pb-2">Store Profile & Operating Rules</h4>
+                        <div class="space-y-3 text-xs" id="mgrSettingsProfileDetails">
+                            Loading store profile...
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 space-y-3">
+                            <div>
+                                <label for="mgrSettingsOperatingHours" class="block font-semibold text-slate-700 text-xs mb-1">Operating Hours</label>
+                                <input type="text" id="mgrSettingsOperatingHours" placeholder="e.g. 07:00 AM - 11:00 PM IST (Daily)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="mgrSettingsMonitoringTier" class="block font-semibold text-slate-700 text-xs mb-1">Autonomous Monitoring Tier</label>
+                                <select id="mgrSettingsMonitoringTier" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                                    <option value="Tier-1 Autonomous Triage">Tier-1 Autonomous Triage</option>
+                                    <option value="Tier-2 Escalation Only">Tier-2 Escalation Only</option>
+                                    <option value="Tier-3 Full Manual">Tier-3 Full Manual</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-sm text-navy-900 border-b border-slate-100 pb-2">Operational Alerts & Dispatch</h4>
+                            <div class="space-y-3 text-xs">
+                                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-100/70 transition">
+                                    <div>
+                                        <span class="font-bold text-slate-800">Critical Alert Email Dispatch</span>
+                                        <p class="text-[11px] text-slate-500 mt-0.5">Send immediate notification when statistical confidence exceeds 85%</p>
+                                    </div>
+                                    <input type="checkbox" id="mgrSettingsNotifyCritical" checked class="w-4 h-4 text-saffron-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-100/70 transition">
+                                    <div>
+                                        <span class="font-bold text-slate-800">Daily Operations Summary</span>
+                                        <p class="text-[11px] text-slate-500 mt-0.5">Automated morning operational briefing for store shift lead</p>
+                                    </div>
+                                    <input type="checkbox" id="mgrSettingsNotifyDaily" checked class="w-4 h-4 text-saffron-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-100/70 transition">
+                                    <div>
+                                        <span class="font-bold text-slate-800">Instant Actionable Feedback Alert</span>
+                                        <p class="text-[11px] text-slate-500 mt-0.5">Notify immediately on customer rating <= 2 with actionable severity</p>
+                                    </div>
+                                    <input type="checkbox" id="mgrSettingsNotifyActionable" checked class="w-4 h-4 text-saffron-600 rounded">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <button id="btnSaveStoreSettings" onclick="saveManagerSettings()" class="px-5 py-2.5 bg-saffron-500 hover:bg-saffron-600 text-navy-900 font-bold text-xs rounded-xl shadow-sm transition flex items-center space-x-2">
+                                <span>💾</span>
+                                <span>Save Store Settings</span>
+                            </button>
+                            <span id="mgrSettingsSaveStatus" class="text-xs font-semibold"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 7: CUSTOMER PORTAL & FEEDBACK WORKFLOW -->
+        <!-- ============================================================= -->
+        <section id="view-customer" class="space-y-8 hidden">
+            <!-- Customer Auth Gate (Shown when not authenticated as customer or admin) -->
+            <div id="customerAuthGate" class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-0.5 text-xs font-bold bg-amber-200 text-amber-900 rounded">Customer Account</span>
+                            <h2 class="text-lg font-bold text-navy-900">Customer Portal Authentication Required</h2>
+                        </div>
+                        <p class="text-xs text-slate-600">
+                            Sign in to submit localized feedback for your grocery store visits, track issue resolution in real-time, and view manager corrective action notes.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="quickLoginDemo('customer')" class="px-4 py-2 rounded-lg bg-saffron-500 hover:bg-saffron-600 text-navy-900 text-xs font-bold shadow-sm transition flex items-center space-x-1.5">
+                            <span>👤</span>
+                            <span>Sign In as Customer (Aarav Sharma)</span>
+                        </button>
+                        <button onclick="openAuthModal()" class="px-3.5 py-2 rounded-lg bg-white border border-amber-300 hover:bg-amber-100 text-slate-700 text-xs font-semibold shadow-sm transition">
+                            Sign In / Register
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authenticated Customer Profile Header -->
+            <div id="customerActiveHeader" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hidden">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-saffron-500/10 text-saffron-600 border border-saffron-500/20 flex items-center justify-center font-bold text-2xl">
+                            👤
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h2 class="text-xl font-extrabold text-navy-900" id="custUserName">Aarav Sharma</h2>
+                                <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">VERIFIED CUSTOMER</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5" id="custUserEmail">customer@example.com</p>
+                            <p class="text-xs text-slate-500 mt-1">Track customer feedback, identify recurring store-level issues, and support faster resolution.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="handleSignOut()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition">
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sub-Navigation Switcher -->
+                <div class="flex flex-wrap gap-2 pt-4 text-xs font-semibold">
+                    <button onclick="showCustomerSubView('dashboard')" id="btnCustSubDash" class="px-4 py-2 rounded-lg bg-saffron-500 text-navy-900 font-bold transition shadow-xs">
+                        📊 My Dashboard
+                    </button>
+                    <button onclick="showCustomerSubView('submit')" id="btnCustSubSubmit" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                        ✍️ Submit Feedback
+                    </button>
+                    <button onclick="showCustomerSubView('history')" id="btnCustSubHist" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                        📜 Submission History
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW 1: CUSTOMER DASHBOARD -->
+            <div id="custSubViewDashboard" class="space-y-6 hidden">
+                <!-- KPI Summary Cards & Status Chart -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+                    <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Submissions</span>
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">💬</div>
+                            </div>
+                            <div class="mt-3 flex items-baseline justify-between">
+                                <span class="text-3xl font-extrabold text-navy-900" id="custKpiTotal">0</span>
+                                <span class="text-xs text-slate-400">All Time</span>
+                            </div>
+                            <p class="mt-1 text-xs text-slate-500">Persisted in database</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Under Investigation / Open</span>
+                                <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⏳</div>
+                            </div>
+                            <div class="mt-3 flex items-baseline justify-between">
+                                <span class="text-3xl font-extrabold text-amber-600" id="custKpiOpen">0</span>
+                                <span class="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded">In Progress</span>
+                            </div>
+                            <p class="mt-1 text-xs text-slate-500">Assigned to store managers</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Resolved Incidents</span>
+                                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">✅</div>
+                            </div>
+                            <div class="mt-3 flex items-baseline justify-between">
+                                <span class="text-3xl font-extrabold text-emerald-600" id="custKpiResolved">0</span>
+                                <span class="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Action Logged</span>
+                            </div>
+                            <p class="mt-1 text-xs text-slate-500">Corrective actions completed</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center">
+                        <div class="flex items-center justify-between w-full mb-1">
+                            <span class="text-xs font-bold text-slate-700">Resolution Status</span>
+                            <span class="text-[10px] text-slate-400">My Feedback</span>
+                        </div>
+                        <div class="relative w-full flex justify-center" style="height: 120px;">
+                            <canvas id="chartCustStatus"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Submissions Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="font-bold text-base text-navy-900">Recent Feedback Submissions</h3>
+                            <p class="text-xs text-slate-500">Track latest store issues, triage results, and manager resolution notes.</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="loadCustomerDashboard()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition flex items-center space-x-1" title="Refresh Recent Submissions">
+                                <span>🔄</span>
+                                <span>Refresh</span>
+                            </button>
+                            <button onclick="showCustomerSubView('submit')" class="px-3 py-1.5 bg-saffron-500 hover:bg-saffron-600 text-navy-900 font-bold text-xs rounded-lg transition shadow-xs">
+                                + New Feedback
+                            </button>
+                        </div>
+                    </div>
+                    <div id="custRecentContainer" class="space-y-3">
+                        <div class="text-center py-8 text-slate-400 text-xs">Loading recent submissions...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW 2: SUBMIT FEEDBACK FORM -->
+            <div id="custSubViewSubmit" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5 hidden">
+                <div class="border-b border-slate-100 pb-4">
+                    <h3 class="font-bold text-lg text-navy-900">Submit In-Store Feedback</h3>
+                    <p class="text-xs text-slate-500">Your feedback is automatically triaged by the AI classification engine and routed directly to the assigned store manager.</p>
+                </div>
+
+                <div id="custSubmitSuccessAlert" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs space-y-2"></div>
+                <div id="custSubmitErrorAlert" class="hidden p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs"></div>
+
+                <form id="custFeedbackForm" onsubmit="handleCustomerFeedbackSubmit(event)" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Select Store Location <span class="text-red-500">*</span></label>
+                            <select id="custStoreSelect" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white">
+                                <option value="" disabled selected>Select a store location...</option>
+                            </select>
+                            <div id="custStoreLoadError" class="hidden mt-1 text-[11px]"></div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Feedback Channel</label>
+                            <select id="custChannelSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white">
+                                <option value="in_app" selected>In-App Feedback</option>
+                                <option value="online_review">Online Store Review</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Experience Rating (1–5 Stars)</label>
+                        <select id="custRatingSelect" class="w-full md:w-1/2 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white">
+                            <option value="">No rating (Observation only)</option>
+                            <option value="1">⭐ 1 Star - Severe issue / Unacceptable</option>
+                            <option value="2">⭐⭐ 2 Stars - Poor experience</option>
+                            <option value="3">⭐⭐⭐ 3 Stars - Average / Needs improvement</option>
+                            <option value="4">⭐⭐⭐⭐ 4 Stars - Good experience with minor note</option>
+                            <option value="5">⭐⭐⭐⭐⭐ 5 Stars - Excellent store experience</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="font-semibold text-slate-700">Detailed Feedback Message <span class="text-red-500">*</span></label>
+                            <span class="text-[11px] text-slate-400" id="custCharCount">0 / 2000</span>
+                        </div>
+                        <textarea id="custFeedbackText" rows="4" required minlength="5" maxlength="2000" oninput="updateCustCharCount()" placeholder="Describe what you observed (e.g. Broken display freezer in dairy section, expired milk carton on shelf, long billing counter wait times, staff assistance issue)..." class="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none font-sans text-xs"></textarea>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-end space-x-3">
+                        <button type="button" onclick="showCustomerSubView('dashboard')" class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg transition">
+                            Cancel
+                        </button>
+                        <button type="submit" id="btnSubmitCustomerFeedback" class="px-6 py-2.5 bg-saffron-500 hover:bg-saffron-600 font-bold text-navy-900 rounded-lg transition shadow flex items-center space-x-2">
+                            <span>Submit Feedback</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SUB-VIEW 3: SUBMISSION HISTORY -->
+            <div id="custSubViewHistory" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-navy-900">Your Feedback History</h3>
+                        <p class="text-xs text-slate-500">Every submission is linked to your account, classified by the triage engine, and tracked through to resolution.</p>
+                    </div>
+                    <button onclick="loadCustomerSubmissions(1)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition flex items-center space-x-1">
+                        <span>🔄</span>
+                        <span>Refresh History</span>
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Status Filter</label>
+                        <select id="custFilterStatus" onchange="loadCustomerSubmissions(1)" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                            <option value="All">All Statuses</option>
+                            <option value="new">New / Unacknowledged</option>
+                            <option value="acknowledged">Acknowledged by Store</option>
+                            <option value="investigating">Under Investigation</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-semibold text-slate-600 mb-1">Search Keywords</label>
+                        <input type="text" id="custFilterSearch" oninput="debounceCustomerSearch()" placeholder="Search feedback text, store name, or issue..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Submissions List Container -->
+                <div id="custHistoryContainer" class="space-y-4 pt-2">
+                    <div class="text-center py-8 text-slate-400 text-xs">Loading submission history...</div>
+                </div>
+
+                <!-- History Pagination Footer -->
+                <div class="p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs bg-slate-50 rounded-xl">
+                    <span class="text-slate-500" id="custPaginationInfo">Showing 0 of 0</span>
+                    <div class="flex items-center space-x-2">
+                        <button id="btnCustPrev" onclick="navigateCustomerHistory(-1)" class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+                            Previous
+                        </button>
+                        <span class="px-3 py-1.5 font-bold text-slate-700" id="custCurrentPage">1</span>
+                        <button id="btnCustNext" onclick="navigateCustomerHistory(1)" class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Section 14: Admin User Provisioning -->
+        <section id="view-admin-users" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                        <span>👥</span>
+                        <span>User Provisioning & Role Assignments</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Platform user accounts, role authorizations (Customer, Store Manager, Admin), and store fleet boundaries.</p>
+                </div>
+                <button onclick="loadAdminUsers()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                    Refresh Users
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase">
+                            <tr>
+                                <th class="p-4">User</th>
+                                <th class="p-4">Role</th>
+                                <th class="p-4">Assigned Store</th>
+                                <th class="p-4">Created At</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 16: Admin Network Insights -->
+        <section id="view-admin-insights" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                        <span>📊</span>
+                        <span>Network Insights & Chain-Wide Patterns</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Cross-store friction analysis across all 60 locations and 39,700+ feedback records.</p>
+                </div>
+                <button onclick="loadAdminInsights()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                    Refresh Insights
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-sm text-navy-900">Chain-Wide Top Recurring Issues</h4>
+                        <span class="text-[11px] text-slate-400">Feedback Frequency</span>
+                    </div>
+                    <div class="relative w-full" style="height: 200px;">
+                        <canvas id="chartAdminNetworkIssues"></canvas>
+                    </div>
+                    <div id="adminInsightsTopCategories" class="space-y-2.5 text-xs pt-2">Loading...</div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-sm text-navy-900">City / Regional Friction Density</h4>
+                        <span class="text-[11px] text-slate-400">Volume by Metro</span>
+                    </div>
+                    <div class="relative w-full" style="height: 200px;">
+                        <canvas id="chartAdminRegional"></canvas>
+                    </div>
+                    <div id="adminInsightsCityDensity" class="space-y-2.5 text-xs pt-2">Loading...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 19: Admin Remediation Actions -->
+        <section id="view-admin-remediations" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                        <span>🛡️</span>
+                        <span>Fleet Remediation Actions & Resolution Tracker</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Audit log of all manager corrective interventions across all 60 stores.</p>
+                </div>
+                <button onclick="loadAdminRemediations()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                    Refresh Tracker
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <div id="adminRemediationsFeed" class="space-y-3 text-xs">Loading remediations...</div>
+            </div>
+        </section>
+
+        <!-- Section 20: Admin External Integrations -->
+        <section id="view-admin-integrations" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                        <span>🔌</span>
+                        <span>External Integrations & Connectors</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Live status of database, authentication, ingestion webhooks, and omnichannel APIs.</p>
+                </div>
+                <button onclick="loadAdminIntegrations()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                    Ping Connectors
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="adminIntegrationsList">
+                <div class="p-6 text-center text-xs text-slate-400">Loading integrations...</div>
+            </div>
+        </section>
+
+        <!-- Section 21: Admin System Settings -->
+        <section id="view-admin-settings" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                        <span>⚙️</span>
+                        <span>Platform Architecture & System Settings</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Active configuration parameters, AI confidence thresholds, and database synchronization modes.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="adminSettingsGrid">
+                <div class="p-6 text-center text-xs text-slate-400">Loading settings...</div>
+            </div>
+        </section>
+
+        <!-- Section 22: Admin Administrative Audit -->
+        <section id="view-admin-audit" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-navy-900 flex items-center space-x-2">
+                        <span>📜</span>
+                        <span>Enterprise Administrative Audit Log</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Complete immutable audit trail of customer feedback submissions, manager lifecycle actions, and role updates.</p>
+                </div>
+                <button onclick="loadAdminAudit()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+                    Refresh Audit Log
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase">
+                            <tr>
+                                <th class="p-4">Timestamp</th>
+                                <th class="p-4">Actor</th>
+                                <th class="p-4">Action</th>
+                                <th class="p-4">Target</th>
+                                <th class="p-4">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminAuditTableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading audit log...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- Public SaaS Footer -->
+    <footer id="footer" class="bg-navy-950 text-slate-400 border-t border-slate-800 py-12 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Col 1: Brand & Overview -->
+                <div class="md:col-span-2 space-y-3">
+                    <div class="text-base font-extrabold text-white tracking-tight">Voice of Store Engine</div>
+                    <p class="text-slate-400 leading-relaxed max-w-sm">
+                        Enterprise retail intelligence platform unifying customer feedback, automated issue triage, and store-level remediation across modern retail networks.
+                    </p>
+                    <div class="flex items-center space-x-2 text-[11px] text-slate-500">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span>60 Stores Connected • Calibrated AI Triage Active</span>
+                    </div>
+                </div>
+
+                <!-- Col 2: Navigation Links -->
+                <div class="space-y-3">
+                    <div class="text-xs font-bold text-slate-200 uppercase tracking-wider">Navigation</div>
+                    <ul class="space-y-2">
+                        <li><a href="#hero" onclick="navigateToSection(event, 'hero')" class="hover:text-amber-400 transition">Home</a></li>
+                        <li><a href="#features" onclick="navigateToSection(event, 'features')" class="hover:text-amber-400 transition">Features</a></li>
+                        <li><a href="#how-it-works" onclick="navigateToSection(event, 'how-it-works')" class="hover:text-amber-400 transition">How It Works</a></li>
+                        <li><a href="#portals" onclick="navigateToSection(event, 'portals')" class="hover:text-amber-400 transition">User Portals</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Workspaces & Portals -->
+                <div class="space-y-3">
+                    <div class="text-xs font-bold text-slate-200 uppercase tracking-wider">Workspaces</div>
+                    <ul class="space-y-2">
+                        <li><button onclick="switchTab('customer')" class="hover:text-amber-400 transition text-left">Customer Portal</button></li>
+                        <li><button onclick="switchTab('manager')" class="hover:text-amber-400 transition text-left">Store Manager Workspace</button></li>
+                        <li><button onclick="switchTab('overview')" class="hover:text-amber-400 transition text-left">Regional Briefs & KPIs</button></li>
+                        <li><button onclick="switchTab('scorecard')" class="hover:text-amber-400 transition text-left">Precision Scorecard</button></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Copyright & Compliance -->
+            <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px]">
+                <p>&copy; 2026 Voice of Store Engine. All rights reserved.</p>
+                <div class="flex items-center space-x-4">
+                    <span>AI-Powered Retail Feedback Intelligence</span>
+                    <span>•</span>
+                    <span>Zero Data Leakage RBAC</span>
+                    <span>•</span>
+                    <span>Tamper-Evident Audit Trails</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Supabase Authentication Modal -->
+    <div id="authModal" class="fixed inset-0 bg-navy-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden transition-all transform scale-100">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-sm tracking-wide" id="authModalTitle">Voice of Store Engine — Sign In</span>
+                </div>
+                <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+
+            <!-- Tab Switcher (Sign In vs Register Customer) -->
+            <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
+                <button id="authTabSignIn" type="button" onclick="switchAuthMode('signin')" class="flex-1 py-3 text-center border-b-2 border-saffron-500 text-saffron-600 bg-white">
+                    Sign In
+                </button>
+                <button id="authTabRegister" type="button" onclick="switchAuthMode('register')" class="flex-1 py-3 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-700">
+                    Register Customer
+                </button>
+            </div>
+
+            <!-- Modal Body Form -->
+            <form id="authForm" onsubmit="submitAuthForm(event)" class="p-6 space-y-4 text-xs">
+                <div id="authAlertBox" class="hidden p-3 rounded-lg text-xs"></div>
+
+                <div id="authFullNameGroup" class="hidden space-y-1">
+                    <label class="block font-semibold text-slate-700">Full Name</label>
+                    <input type="text" id="authFullName" placeholder="Aarav Sharma" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block font-semibold text-slate-700">Email Address</label>
+                    <input type="email" id="authEmail" required placeholder="name@saffron.example" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block font-semibold text-slate-700">Password</label>
+                    <input type="password" id="authPassword" required minlength="8" placeholder="••••••••" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none">
+                    <p class="text-[11px] text-slate-400">Minimum 8 characters.</p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="btnSubmitAuth" class="w-full py-2.5 bg-saffron-500 hover:bg-saffron-600 font-bold text-navy-900 rounded-lg transition shadow">
+                        Sign In
+                    </button>
+                </div>
+
+                <div class="text-[11px] text-slate-500 text-center pt-2 border-t border-slate-100">
+                    <span>Protected by Supabase Auth & PostgreSQL Row Level Security.</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert Resolution Modal -->
+    <div id="managerResolveModal" class="fixed inset-0 bg-navy-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center font-bold text-white text-xs">✓</span>
+                    <h3 class="font-bold text-sm tracking-wide">Resolve Incident Alert</h3>
+                </div>
+                <button onclick="closeResolveModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            <form onsubmit="submitResolveAlert(event)" class="p-6 space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Target Alert ID</label>
+                    <input type="text" id="resolveAlertIdDisplay" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 font-mono text-xs">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Resolution Note & Corrective Action <span class="text-red-500">*</span></label>
+                    <textarea id="resolveNoteInput" required minlength="5" rows="4" placeholder="Detail the corrective actions taken (e.g. Technician replaced display chiller thermostat, inspected dairy inventory, and restocked fresh milk batch)..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none"></textarea>
+                    <p class="text-[11px] text-slate-400 mt-1">Minimum 5 characters. This note is permanently committed to the store audit log.</p>
+                </div>
+                <div class="pt-2 flex items-center justify-end space-x-2">
+                    <button type="button" onclick="closeResolveModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-semibold hover:bg-slate-50 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btnSubmitResolve" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow transition">
+                        Confirm Resolution
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer Feedback Resolution Modal (Manager Action) -->
+    <div id="managerFeedbackResolveModal" class="fixed inset-0 bg-navy-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center font-bold text-white text-xs">✓</span>
+                    <h3 class="font-bold text-sm tracking-wide">Resolve Customer Feedback</h3>
+                </div>
+                <button onclick="closeFeedbackResolveModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            <form onsubmit="submitFeedbackResolve(event)" class="p-6 space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Feedback ID</label>
+                    <input type="text" id="feedbackResolveIdDisplay" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 font-mono text-xs">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Customer Feedback Snippet</label>
+                    <div id="feedbackResolveSnippetDisplay" class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 italic text-xs"></div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Resolution Note & Corrective Action <span class="text-red-500">*</span></label>
+                    <textarea id="feedbackResolveNoteInput" required minlength="5" rows="4" placeholder="Detail the corrective actions taken for this customer issue (e.g. Cleaned and restocked aisle, calibrated scanner, addressed staff concern)..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none"></textarea>
+                    <p class="text-[11px] text-slate-400 mt-1">Minimum 5 characters. This note is shared with the customer in their submission history and logged in audit trails.</p>
+                </div>
+                <div class="pt-2 flex items-center justify-end space-x-2">
+                    <button type="button" onclick="closeFeedbackResolveModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-semibold hover:bg-slate-50 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btnSubmitFeedbackResolve" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow transition">
+                        Confirm Resolution
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert Audit History Modal -->
+    <div id="managerHistoryModal" class="fixed inset-0 bg-navy-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800 shrink-0">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-saffron-500 flex items-center justify-center font-bold text-navy-900 text-xs shadow-sm">
+                        📜
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm tracking-wide leading-tight">Incident Audit Trail</h3>
+                        <p class="text-[10px] text-slate-400">Verifiable tamper-evident operational action history</p>
+                    </div>
+                </div>
+                <button onclick="closeHistoryModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 text-xl font-bold transition">&times;</button>
+            </div>
+            <div class="p-6 space-y-4 text-xs overflow-y-auto grow">
+                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="space-y-0.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Alert Reference</span>
+                        <div id="historyModalAlertIdDisplay" class="font-mono text-xs font-bold text-navy-900"></div>
+                    </div>
+                    <div id="historyModalMetaBadges" class="flex flex-wrap items-center gap-1.5 text-xs">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+                <div id="historyTimelineContainer" class="pt-2 space-y-4">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex items-center justify-between shrink-0">
+                <div class="text-[11px] text-slate-400 flex items-center gap-1">
+                    <span>🔒</span> Verified System Audit Log
+                </div>
+                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition shadow-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Management & Directory Modal (Admin Portal) -->
+    <div id="storeManagementModal" class="fixed inset-0 bg-navy-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-5xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="bg-navy-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg bg-saffron-500 flex items-center justify-center font-bold text-navy-900 text-sm shadow-sm">
+                        🏬
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 class="font-bold text-base tracking-wide leading-tight">Store Directory & Management</h3>
+                            <span id="storeMgmtTotalBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-saffron-500/20 text-saffron-300 border border-saffron-500/30">60 Stores Active</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Authoritative store master network across all regions and formats</p>
+                    </div>
+                </div>
+                <button onclick="closeStoreManagementModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 text-xl font-bold transition">&times;</button>
+            </div>
+
+            <!-- Filter & Search Toolbar -->
+            <div class="p-4 bg-slate-50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 shrink-0 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Search Stores</label>
+                    <input type="text" id="storeMgmtSearch" oninput="onStoreMgmtFilterChange()" placeholder="Search name, ID, city..." class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Filter by Region</label>
+                    <select id="storeMgmtRegion" onchange="onStoreMgmtFilterChange()" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white font-medium">
+                        <option value="All">All Regions (All 60)</option>
+                        <option value="North">North Region</option>
+                        <option value="South">South Region</option>
+                        <option value="East">East Region</option>
+                        <option value="West">West Region</option>
+                        <option value="Central">Central Region</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Filter by Format</label>
+                    <select id="storeMgmtFormat" onchange="onStoreMgmtFilterChange()" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-none bg-white font-medium">
+                        <option value="All">All Formats</option>
+                        <option value="Saffron Market">Saffron Market</option>
+                        <option value="Saffron Express">Saffron Express</option>
+                        <option value="Saffron Hyper">Saffron Hyper</option>
+                    </select>
+                </div>
+                <div class="flex items-end space-x-2">
+                    <button type="button" onclick="refreshStoreManagementData()" id="btnStoreMgmtRefresh" class="w-full px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg flex items-center justify-center space-x-1 transition shadow-sm">
+                        <span>🔄 Refresh Directory</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stores Table Container -->
+            <div class="p-4 overflow-y-auto grow">
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
+                        <thead class="bg-slate-100 font-semibold text-slate-700">
+                            <tr>
+                                <th class="px-3.5 py-2.5">Store ID</th>
+                                <th class="px-3.5 py-2.5">Store Name</th>
+                                <th class="px-3.5 py-2.5">City & State</th>
+                                <th class="px-3.5 py-2.5">Region</th>
+                                <th class="px-3.5 py-2.5">Format</th>
+                                <th class="px-3.5 py-2.5">Weekly Footfall</th>
+                                <th class="px-3.5 py-2.5">Opened</th>
+                                <th class="px-3.5 py-2.5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="storeMgmtTableBody" class="divide-y divide-slate-200 bg-white">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal Footer with Working Pagination -->
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 text-xs">
+                <div id="storeMgmtPaginationInfo" class="text-slate-600 font-medium">
+                    Showing 1–10 of 60 stores
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="changeStoreMgmtPage(-1)" id="btnStoreMgmtPrev" class="px-3 py-1.5 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+                        &larr; Previous
+                    </button>
+                    <span id="storeMgmtPageDisplay" class="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-bold text-navy-900">
+                        Page 1 of 6
+                    </span>
+                    <button type="button" onclick="changeStoreMgmtPage(1)" id="btnStoreMgmtNext" class="px-3 py-1.5 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next &rarr;
+                    </button>
+                    <button type="button" onclick="closeStoreManagementModal()" class="ml-2 px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg transition shadow-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification (Floating bottom-right) -->
+    <div id="managerToast" class="fixed bottom-5 right-5 z-50 max-w-sm rounded-xl p-4 shadow-xl border hidden transition-all duration-300 transform translate-y-0">
+        <div class="flex items-start space-x-3">
+            <span id="toastIcon" class="text-lg">✓</span>
+            <div>
+                <p id="toastTitle" class="text-xs font-bold text-slate-900">Success</p>
+                <p id="toastMessage" class="text-xs text-slate-600 mt-0.5">Action completed.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-Side App Logic -->
+    <script src="/static/app.js"></script>
+</body>
+</html>

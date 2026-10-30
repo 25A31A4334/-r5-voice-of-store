@@ -1,0 +1,94 @@
+# ============================================================================
+# TalentAP Mega Hackathon 2026 - .gitignore
+# Project: R5 — Voice-of-Store Engine
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# 1. Environment & Secrets (NEVER COMMIT)
+# ----------------------------------------------------------------------------
+.env
+.env*
+*.env
+*.env*
+.env.txt
+.env.local
+!.env.example
+*.pem
+*.key
+*.cert
+id_rsa*
+
+# ----------------------------------------------------------------------------
+# 2. Local Database Files & Local DB Backups
+# ----------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.sql.dump
+FULL_CODE/r5_store.db
+FULL_CODE/db/voice_of_store.db
+FULL_CODE/db/backups/
+FULL_CODE/db/sqlite_data_dump_*.json
+
+# ----------------------------------------------------------------------------
+# 3. Python Virtual Environments, Bytecode & Test Caches
+# ----------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*/__pycache__/
+**/*.py[cod]
+**/*$py.class
+*.ipynb_checkpoints/
+.pytest_cache/
+*/.pytest_cache/
+
+# ----------------------------------------------------------------------------
+# 4. Node & Frontend Build Artifacts
+# ----------------------------------------------------------------------------
+node_modules/
+dist/
+build/
+.next/
+
+# ----------------------------------------------------------------------------
+# 5. Temporary Files, Editor Caches & Code Backups
+# ----------------------------------------------------------------------------
+*.bak
+*.backup*
+*.tmp
+*~
+FULL_CODE/backups/
+FULL_CODE/temp_flags.csv
+FULL_CODE/temp_preds.csv
+FULL_CODE/test_flags.csv
+FULL_CODE/test_predictions.csv
+data/*Copy*
+
+# ----------------------------------------------------------------------------
+# 6. Datasets & Model Artifacts (Rule 2 & 11)
+# ----------------------------------------------------------------------------
+# Note: Exclude raw 8MB feedback stream and duplicates; keep lightweight training truth & metadata
+data/feedback.csv
+data/*Copy*
+models/
+
+# ----------------------------------------------------------------------------
+# 7. IDE & Editor Artifacts
+# ----------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ----------------------------------------------------------------------------
+# 8. Logs & OS System Files
+# ----------------------------------------------------------------------------
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini

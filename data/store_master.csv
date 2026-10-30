@@ -1,0 +1,61 @@
+store_id,store_name,city,state,region,format,size_sqft,avg_weekly_footfall,opened_date
+ST-001JY,Saffron Market Gariahat,Kolkata,West Bengal,East,Saffron Market,22000,15450,2012-08-09
+ST-01XF3,Saffron Market Dharampeth,Nagpur,Maharashtra,West,Saffron Market,13800,12900,2013-06-25
+ST-0C5WT,Saffron Market KK Nagar,Madurai,Tamil Nadu,South,Saffron Market,23100,15850,2012-06-01
+ST-0PMPC,Saffron Express Sector 35,Chandigarh,Chandigarh,North,Saffron Express,4700,5050,2020-10-16
+ST-1WYQW,Saffron Express Sevoke Road,Siliguri,West Bengal,East,Saffron Express,5500,4900,2021-06-29
+ST-3QYG8,Saffron Express Sector 18,Noida,Uttar Pradesh,North,Saffron Express,4300,4500,2014-02-15
+ST-4O23E,Saffron Express T. Nagar,Chennai,Tamil Nadu,South,Saffron Express,4900,4300,2016-12-17
+ST-5DTIW,Saffron Market GS Road,Guwahati,Assam,East,Saffron Market,22700,18250,2024-02-03
+ST-5S4XI,Saffron Express Vaishali Nagar,Jaipur,Rajasthan,North,Saffron Express,5100,5700,2009-08-13
+ST-63B8A,Saffron Express Lalpur,Ranchi,Jharkhand,East,Saffron Express,5300,5150,2017-03-19
+ST-ALA1P,Saffron Market Sarabha Nagar,Ludhiana,Punjab,North,Saffron Market,16800,12450,2020-08-02
+ST-ATCXB,Saffron Express Fairlands,Salem,Tamil Nadu,South,Saffron Express,2700,2900,2019-02-25
+ST-B1HRP,Saffron Hyper Vijay Nagar,Indore,Madhya Pradesh,Central,Saffron Hyper,58000,45000,2018-06-07
+ST-BIOWF,Saffron Market Saheed Nagar,Bhubaneswar,Odisha,East,Saffron Market,16500,13150,2016-07-26
+ST-BLYKN,Saffron Hyper Kukatpally,Hyderabad,Telangana,South,Saffron Hyper,66600,43300,2013-07-05
+ST-BWWKH,Saffron Hyper Ghodbunder Road,Thane,Maharashtra,West,Saffron Hyper,65400,50550,2022-09-02
+ST-C1BTY,Saffron Hyper Gandhipuram,Coimbatore,Tamil Nadu,South,Saffron Hyper,79200,54900,2013-06-19
+ST-C6EO2,Saffron Market Jayanagar,Bengaluru,Karnataka,South,Saffron Market,14000,12350,2021-03-05
+ST-D69EG,Saffron Market Kankarbagh,Patna,Bihar,East,Saffron Market,22500,14550,2024-09-28
+ST-DK8JZ,Saffron Market Velachery,Chennai,Tamil Nadu,South,Saffron Market,22600,17800,2021-09-29
+ST-DT45C,Saffron Express Shibpur,Howrah,West Bengal,East,Saffron Express,4900,4250,2022-01-29
+ST-DU79L,Saffron Express Boring Road,Patna,Bihar,East,Saffron Express,3400,4400,2012-10-22
+ST-EKO62,Saffron Express Dadar,Mumbai,Maharashtra,West,Saffron Express,4200,4800,2013-10-15
+ST-EVSEI,Saffron Express Vashi,Navi Mumbai,Maharashtra,West,Saffron Express,2800,4050,2022-05-09
+ST-FAZ5R,Saffron Express Bhawarkuan,Indore,Madhya Pradesh,Central,Saffron Express,5100,5400,2017-10-09
+ST-FG0F3,Saffron Market Lajpat Nagar,Delhi,Delhi,North,Saffron Market,12200,12250,2015-03-11
+ST-FNN4E,Saffron Express Mylapore,Chennai,Tamil Nadu,South,Saffron Express,3100,4000,2010-10-20
+ST-FX7C5,Saffron Express Mayur Vihar,Delhi,Delhi,North,Saffron Express,5000,4600,2021-04-16
+ST-H0PEI,Saffron Hyper Behala,Kolkata,West Bengal,East,Saffron Hyper,67200,52600,2020-05-28
+ST-IBZUA,Saffron Market College Road,Nashik,Maharashtra,West,Saffron Market,16600,13500,2009-06-25
+ST-IL9V9,Saffron Market Viman Nagar,Pune,Maharashtra,West,Saffron Market,14500,12700,2011-07-18
+ST-J3CVQ,Saffron Hyper Rohini,Delhi,Delhi,North,Saffron Hyper,78700,52450,2022-01-15
+ST-JF6RC,Saffron Express Napier Town,Jabalpur,Madhya Pradesh,Central,Saffron Express,3000,3950,2024-03-30
+ST-JGAH4,Saffron Express Baner,Pune,Maharashtra,West,Saffron Express,2600,4300,2012-07-18
+ST-JSCIU,Saffron Hyper Anna Nagar,Chennai,Tamil Nadu,South,Saffron Hyper,81400,48900,2024-04-06
+ST-KXEU6,Saffron Market RS Puram,Coimbatore,Tamil Nadu,South,Saffron Market,22700,15250,2015-02-21
+ST-L4ISR,Saffron Market Dwarka,Delhi,Delhi,North,Saffron Market,20800,15050,2024-10-24
+ST-LRM7C,Saffron Market Swaroop Nagar,Kanpur,Uttar Pradesh,North,Saffron Market,23200,15150,2012-02-07
+ST-LRQT8,Saffron Hyper Satellite,Ahmedabad,Gujarat,West,Saffron Hyper,63000,46800,2013-11-16
+ST-LZWVE,Saffron Market Arera Colony,Bhopal,Madhya Pradesh,Central,Saffron Market,12400,12850,2018-08-15
+ST-M3B5V,Saffron Express Freeganj,Ujjain,Madhya Pradesh,Central,Saffron Express,4300,4550,2021-01-13
+ST-M4Z0X,Saffron Express Thillai Nagar,Tiruchirappalli,Tamil Nadu,South,Saffron Express,3700,4550,2011-08-14
+ST-NH03L,Saffron Hyper Whitefield,Bengaluru,Karnataka,South,Saffron Hyper,84600,53300,2019-03-01
+ST-NL50I,Saffron Market Palasia,Indore,Madhya Pradesh,Central,Saffron Market,23900,18600,2009-02-18
+ST-NPYQ5,Saffron Hyper Sohna Road,Gurugram,Haryana,North,Saffron Hyper,72400,53150,2010-03-14
+ST-NWRDO,Saffron Hyper Kothrud,Pune,Maharashtra,West,Saffron Hyper,74100,62500,2016-04-10
+ST-QUO09,Saffron Market Adyar,Chennai,Tamil Nadu,South,Saffron Market,18300,12350,2021-06-18
+ST-R5E01,Saffron Hyper Gomti Nagar,Lucknow,Uttar Pradesh,North,Saffron Hyper,49900,33300,2023-01-18
+ST-RQ90E,Saffron Market Powai,Mumbai,Maharashtra,West,Saffron Market,22200,20050,2010-04-14
+ST-RRI9Q,Saffron Express Telibandha,Raipur,Chhattisgarh,Central,Saffron Express,4100,4550,2023-12-27
+ST-SGF38,Saffron Market Adajan,Surat,Gujarat,West,Saffron Market,21500,16000,2010-07-16
+ST-T4786,Saffron Market Edappally,Kochi,Kerala,South,Saffron Market,14700,12600,2022-04-17
+ST-UGHH4,Saffron Market Borivali,Mumbai,Maharashtra,West,Saffron Market,20500,17400,2017-09-27
+ST-VQDPW,Saffron Express Nehru Nagar,Bhilai,Chhattisgarh,Central,Saffron Express,4300,3900,2012-10-17
+ST-WBHS8,Saffron Market Rajpur Road,Dehradun,Uttarakhand,North,Saffron Market,14600,10900,2019-12-13
+ST-XAHPU,Saffron Hyper MP Nagar,Bhopal,Madhya Pradesh,Central,Saffron Hyper,63400,42800,2023-04-09
+ST-YH5K1,Saffron Hyper Andheri West,Mumbai,Maharashtra,West,Saffron Hyper,84100,60700,2010-10-27
+ST-ZBQIK,Saffron Market Malviya Nagar,Jaipur,Rajasthan,North,Saffron Market,19500,14500,2011-01-15
+ST-ZLR7H,Saffron Market City Centre,Gwalior,Madhya Pradesh,Central,Saffron Market,12800,12200,2018-06-29
+ST-ZX6E5,Saffron Market Shankar Nagar,Raipur,Chhattisgarh,Central,Saffron Market,16400,12100,2023-02-16

@@ -1,0 +1,2 @@
+incident_id,store_ids,store_first_week_starts,issue_type_id,onset_week_start,naive_detect_week_start,last_week_start
+EX-1,ST-D69EG,2026-04-27,IT17,2026-04-27,2026-05-18,2026-06-08

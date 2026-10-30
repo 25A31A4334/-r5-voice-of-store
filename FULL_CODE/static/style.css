@@ -1,0 +1,125 @@
+/* Custom styling for Voice of Store Engine Platform */
+
+:root {
+    --primary: #F59E0B;
+    --primary-dark: #D97706;
+    --navy: #0F172A;
+    --navy-light: #1E293B;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #F8FAFC;
+    color: #1E293B;
+}
+
+/* Glassmorphism and Card Accents */
+.card-hover {
+    transition: all 0.2s ease-in-out;
+}
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+/* Severity Badges */
+.badge-critical {
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FCA5A5;
+}
+.badge-high {
+    background-color: #FFEDD5;
+    color: #9A3412;
+    border: 1px solid #FDBA74;
+}
+.badge-medium {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FCD34D;
+}
+.badge-low {
+    background-color: #E0E7FF;
+    color: #3730A3;
+    border: 1px solid #C7D2FE;
+}
+
+/* Actionable Badges */
+.badge-actionable-yes {
+    background-color: #DCFCE7;
+    color: #166534;
+    border: 1px solid #86EFAC;
+}
+.badge-actionable-no {
+    background-color: #F1F5F9;
+    color: #64748B;
+    border: 1px solid #CBD5E1;
+}
+
+/* Trend Arrow Indicators */
+.trend-increase {
+    color: #DC2626;
+    font-weight: 700;
+}
+.trend-decrease {
+    color: #16A34A;
+    font-weight: 700;
+}
+.trend-flat {
+    color: #64748B;
+    font-weight: 600;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+}
+
+/* Responsive Chart Container Styles */
+.chart-container-sm {
+    position: relative;
+    width: 100%;
+    min-height: 140px;
+    max-height: 200px;
+}
+
+.chart-container-md {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    max-height: 260px;
+}
+
+/* Skeleton Loading Animation */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-loading {
+    background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 0.5rem;
+}
+
+/* Interactive Card Transitions */
+.interactive-card {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.interactive-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+}
+
